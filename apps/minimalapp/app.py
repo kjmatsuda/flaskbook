@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, current_app, g, render_template, url_for
 
 app = Flask(__name__)
 
@@ -29,3 +29,13 @@ with app.test_request_context():
 
     # /name/ichiro?page=1
     print(url_for("show_name", name="ichiro", page="1"))
+
+
+# アプリケーションコンテキストを取得してスタックへ push する
+ctx = app.app_context()
+ctx.push()
+
+print(current_app.name)
+
+g.connection = "connection"
+print(g.connection)
