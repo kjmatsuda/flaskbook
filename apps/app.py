@@ -3,8 +3,10 @@ from pathlib import Path
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 
 db = SQLAlchemy()
+csrf = CSRFProtect()
 
 
 def create_app():
@@ -16,8 +18,11 @@ def create_app():
         f"sqlite:///{Path(__file__).parent.parent / 'local.sqlite'}",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # SQL をコンソールログに出力する設定
-        SQLALCHEMY_ECHO=True
+        SQLALCHEMY_ECHO=True,
+        WTF_CSRF_SECRET_KEY="AuwzyszU5sugKN7KZs6f",
     )
+
+    csrf.init_app(app)
 
     db.init_app(app)
     Migrate(app, db)
