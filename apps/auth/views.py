@@ -2,7 +2,7 @@ from apps.app import db
 from apps.auth.forms import LoginForm, SignUpForm
 from apps.crud.models import User
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_user
+from flask_login import login_user, logout_user
 
 auth = Blueprint(
     "auth",
@@ -58,3 +58,9 @@ def login():
         flash("メールアドレスかパスワードが不正です")
 
     return render_template("auth/login.html", form=form)
+
+
+@auth.route("/logout", methods=["POST"])
+def logout():
+    logout_user()
+    return redirect(url_for("auth.login"))
