@@ -281,3 +281,5 @@ cython_debug/
 GPATH
 GRTAGS
 GTAGS
+
+apps/images
