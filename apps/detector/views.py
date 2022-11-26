@@ -51,4 +51,4 @@ def upload_image():
 
         return redirect(url_for("detector.index"))
 
-    return render_template("detector/index.html", form=form)
+    return render_template("detector/upload.html", form=form)
