@@ -27,7 +27,7 @@ class BaseConfig:
         "parking meter",
         "bench",
         "bird",
-\\        "cat",
+        "cat",
         "dog",
         "horse",
         "sheep",
