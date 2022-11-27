@@ -8,7 +8,7 @@ import torch
 import torchvision
 from apps.app import db
 from apps.crud.models import User
-from apps.detector.forms import UploadImageForm
+from apps.detector.forms import DetectorForm, UploadImageForm
 from apps.detector.models import UserImage, UserImageTag
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    send_from_directory, url_for)
@@ -29,7 +29,26 @@ def index():
         .all()
     )
 
-    return render_template("detector/index.html", user_images=user_images)
+    # タグ一覧を取得する
+    user_image_tag_dict = {}
+    for user_image in user_images:
+        # 画像に紐づくタグ一覧を取得する
+        user_image_tags = {
+            db.session.query(UserImageTag)
+            .filter(UserImageTag.user_image_id == user_image.UserImage.id)
+            .all()
+        }
+        user_image_tag_dict[user_image.UserImage.id] = user_image_tags
+
+    # 物体検知フォームをインスタンス化する
+    detector_form = DetectorForm()
+
+    return render_template(
+        "detector/index.html",
+        user_images=user_images,
+        user_image_tag_dict=user_image_tag_dict,
+        detector_form=detector_form,
+    )
 
 
 @dt.route("/images/<path:filename>")
