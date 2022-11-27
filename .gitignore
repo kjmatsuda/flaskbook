@@ -276,10 +276,11 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,flask,visualstudiocode
 
-*.sqlite
-
 GPATH
 GRTAGS
 GTAGS
 
 apps/images
+migrations/
+*.sqlite
+apps/detector/model.pt
