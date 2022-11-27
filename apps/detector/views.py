@@ -9,10 +9,13 @@ import torchvision
 from apps.app import db
 from apps.crud.models import User
 from apps.detector.forms import UploadImageForm
-from apps.detector.models import UserImage
-from flask import (Blueprint, current_app, redirect, render_template,
+from apps.detector.models import UserImage, UserImageTag
+from flask import (Blueprint, current_app, flash, redirect, render_template,
                    send_from_directory, url_for)
 from flask_login import current_user, login_required
+# TODO PIL とは？
+from PIL import Image
+from sqlalchemy.exc import SQLAlchemyError
 
 dt = Blueprint("detector", __name__, template_folder="templates")
 
@@ -94,3 +97,80 @@ def draw_texts(result_image, line, c1, cv2, color, labels, label):
         lineType=cv2.LINE_AA,
     )
     return cv2
+
+
+def exec_detect(target_image_path):
+    labels = current_app.config["LABELS"]
+
+    image = Image.open(target_image_path)
+
+    image_tensor = torchvision.transforms.functional.to_tensor(image)
+
+    model = torch.load(Path(current_app.root_path, "detector", "model.pt"))
+
+    model = model.eval()
+
+    # 推論の実行
+    output = model([image_tensor])[0]
+    tags = []
+    result_image = np.array(image.copy())
+
+    # 学習済みモデルが検知した各物体の分だけ画像に追記
+    for box, label, score in zip(output["boxes"], output["labels"], output["scores"]):
+        if score > 0.5 and labels[label] not in tags:
+            print(score)
+            print(labels[label])
+            color = make_color(labels)
+            line = make_line(result_image)
+            c1 = (int(box[0]), int(box[1]))
+            c2 = (int(box[2]), int(box[3]))
+            cv2 = draw_lines(c1, c2, result_image, line, color)
+            cv2 = draw_texts(result_image, line, c1, cv2, color, labels, label)
+            tags.append(labels[label])
+
+    detected_image_file_name = str(uuid.uuid4()) + ".jpg"
+
+    detected_image_file_path = str(
+        Path(current_app.config["UPLAD_FOLDER"], detected_image_file_name)
+    )
+
+    cv2.imwrite(detected_image_file_path, cv2.cvtColor(result_image, cv2.COLOR_RGB2BGR))
+    return tags, detected_image_file_name
+
+
+def save_detected_image_tags(user_image, tags, detected_image_file_name):
+    user_image.image_path = detected_image_file_name
+    user_image.is_detected = True
+    db.session.add(user_image)
+    for tag in tags:
+        user_image_tag = UserImageTag(user_image_id=user_image.id, tag_name=tag)
+        db.session.add(user_image_tag)
+    db.session.commit()
+
+
+@dt.route("/detect/<string:image_id>", methods=["POST"])
+@login_required
+def detect(image_id):
+    user_image = (
+        db.session.query(UserImage).filter(
+            UserImage.id == image_id).first()
+    )
+    if user_image is None:
+        flash("物体検知対象の画像が存在しません。")
+        return redirect(url_for("detector.index"))
+
+    target_image_path = Path(
+        current_app.config["UPLOAD_FOLDER"], user_image.image_path
+    )
+
+    tags, detected_image_file_name = exec_detect(target_image_path)
+
+    try:
+        save_detected_image_tags(user_image, tags, detected_image_file_name)
+    except SQLAlchemyError as e:
+        flash("物体検知処理でエラーが発生しました。")
+        db.session.rollback()
+        current_app.logger.error(e)
+        return redirect(url_for("detector.index"))
+
+    return redirect(url_for("detector.index"))
