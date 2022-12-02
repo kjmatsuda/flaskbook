@@ -33,11 +33,11 @@ def index():
     user_image_tag_dict = {}
     for user_image in user_images:
         # 画像に紐づくタグ一覧を取得する
-        user_image_tags = {
+        user_image_tags = (
             db.session.query(UserImageTag)
             .filter(UserImageTag.user_image_id == user_image.UserImage.id)
             .all()
-        }
+        )
         user_image_tag_dict[user_image.UserImage.id] = user_image_tags
 
     # 物体検知フォームをインスタンス化する
@@ -150,7 +150,7 @@ def exec_detect(target_image_path):
     detected_image_file_name = str(uuid.uuid4()) + ".jpg"
 
     detected_image_file_path = str(
-        Path(current_app.config["UPLAD_FOLDER"], detected_image_file_name)
+        Path(current_app.config["UPLOAD_FOLDER"], detected_image_file_name)
     )
 
     cv2.imwrite(detected_image_file_path, cv2.cvtColor(result_image, cv2.COLOR_RGB2BGR))
