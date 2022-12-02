@@ -20,6 +20,16 @@
     <header class="d-flex justify-content-between">
         <div class="dt-image-username">{{ user_image.User.username }}</div>
         <div class="d-flex flex-row-reverse">
+            <!-- 削除ボタンのフォームを追加する -->
+            <div class="p-2">
+                <form action="{{ url_for('detector.delete_image', image_id= user_image.UserImage.id) }}" method="POST">
+                    {{ delete_form.csrf_token }}
+                    {% if current_user.id == user_image.User.id %}
+                    {{ delete_form.submit(class="btn btn-danger") }}
+                    {% else %}
+                    {{ delete_form.submit(class="btn btn-danger", disabled="disabled") }}
+                    {% endif %}
+            </div>
             <div class="p-2">
                 <form action="{{ url_for('detector.detect', image_id=user_image.UserImage.id) }}" method="POST">
                     {{ detector_form.csrf_token }}
