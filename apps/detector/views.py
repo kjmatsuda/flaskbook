@@ -2,6 +2,7 @@ import random
 import uuid
 from pathlib import Path
 
+# TODO cv2 って何？
 import cv2
 import numpy as np
 import torch
@@ -138,6 +139,7 @@ def exec_detect(target_image_path):
     result_image = np.array(image.copy())
 
     # 学習済みモデルが検知した各物体の分だけ画像に追記
+    # TODO zip ってなんだっけ？
     for box, label, score in zip(output["boxes"], output["labels"], output["scores"]):
         if score > 0.5 and labels[label] not in tags:
             print(score)
