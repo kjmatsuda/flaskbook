@@ -18,3 +18,18 @@ def test_index_signup(client):
     rv = client.get("/")
     assert "ログアウト" in rv.data.decode()
     assert "画像新規登録" in rv.data.decode()
+
+
+def test_upload_no_auth(client):
+    rv = client.get("/upload", follow_redirects=True)
+    # 画像アップロード画面にはアクセスできない
+    assert "アップロード" not in rv.data.decode()
+    # ログイン画面へリダイレクトされる
+    assert "メールアドレス" in rv.data.decode()
+    assert "パスワード" in rv.data.decode()
+
+
+def test_upload_signup_get(client):
+    signup(client, "admin", "flaskbook@example.com", "password")
+    rv = client.get("/upload", follow_redirects=True)
+    assert "アップロード" in rv.data.decode()
