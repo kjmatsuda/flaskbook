@@ -33,7 +33,8 @@ def fixture_app():
     shutil.rmtree(app.config["UPLOAD_FOLDER"])
     db.session.commit()
 
-# TODO こいつがよく分からない...
+
+# TODO こいつがよく分からない... 引数の fixture_app は 上で def した関数？->yes
 @pytest.fixture
 def client(fixture_app):
     return fixture_app.test_client()
