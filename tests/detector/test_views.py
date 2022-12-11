@@ -86,8 +86,25 @@ def test_detect(client):
     upload_image(client, "detector/testdata/test_valid_image.jpg")
     user_image = UserImage.query.first()
     # 物体検知を実行する
-    rv = client.post("/detect/{user_image.id}", follow_redirects=True)
+    rv = client.post(f"/detect/{user_image.id}", follow_redirects=True)
     user_image = UserImage.query.first()
     assert user_image.image_path in rv.data.decode()
-    # TODO なぜか 「assert "dog" in rv.data.decode()」が FAILED になるので一旦、コメントアウトする
-    # assert "dog" in rv.data.decode()
+    assert "dog" in rv.data.decode()
+
+
+def test_detect_search(client):
+    signup(client, "admin", "flaskbook@example.com", "password")
+    upload_image(client, "detector/testdata/test_valid_image.jpg")
+    user_image = UserImage.query.first()
+    # 物体検知を実行する
+    rv = client.post(f"/detect/{user_image.id}", follow_redirects=True)
+
+    # dog で検索する
+    rv = client.get("/images/search?search=dog")
+    assert user_image.image_path in rv.data.decode()
+    assert "dog" in rv.data.decode()
+
+    # test ワードで検索する
+    rv = client.get("/images/search?search=test")
+    assert user_image.image_path not in rv.data.decode()
+    assert "dog" not in rv.data.decode()
