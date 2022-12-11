@@ -71,3 +71,11 @@ def test_upload_signup_post(client):
     rv = upload_image(client, "detector/testdata/test_valid_image.jpg")
     user_image = UserImage.query.first()
     assert user_image.image_path in rv.data.decode()
+
+
+def test_detect_no_user_image(client):
+    signup(client, "admin", "flaskbook@example.com", "password")
+    upload_image(client, "detector/testdata/test_valid_image.jpg")
+    # 存在しないIDを指定する
+    rv = client.post("/detect/noexistid", follow_redirects=True)
+    assert "物体検知対象の画像が存在しません。" in rv.data.decode()
