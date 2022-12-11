@@ -283,5 +283,5 @@ GTAGS
 apps/images
 migrations/
 *.sqlite
-apps/detector/model.pt
+model.pt
 tests/detector/testdata/
