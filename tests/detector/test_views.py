@@ -118,4 +118,9 @@ def test_delete(client):
 
     rv = client.post(f"/image/delete/{user_image.id}", follow_redirects=True)
 
-    assert user_image.image_path not in rv.data.decode()
+    assert image_path not in rv.data.decode()
+
+
+def test_custom_error(client):
+    rv = client.get("/notfound")
+    assert "404 Not Found" in rv.data.decode()
