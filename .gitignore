@@ -284,3 +284,4 @@ apps/images
 migrations/
 *.sqlite
 apps/detector/model.pt
+tests/detector/testdata/
