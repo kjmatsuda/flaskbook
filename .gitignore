@@ -285,3 +285,4 @@ migrations/
 *.sqlite
 model.pt
 tests/detector/testdata/
+*.jpg
