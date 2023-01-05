@@ -1,0 +1,17 @@
+.git
+.mypy_cache
+.env
+.git
+.gitignore
+.mypy_cache
+.pytest_cache
+.vscode
+Dockerfile
+GPATH
+GRTAGS
+GTAGS
+flaskbook_api
+migrations
+testing.sqlit
+tests
+venv
